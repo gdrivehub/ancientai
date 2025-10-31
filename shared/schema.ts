@@ -1,18 +1,19 @@
-import { sql } from "drizzle-orm";
-import { pgTable, text, varchar } from "drizzle-orm/pg-core";
-import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
-export const users = pgTable("users", {
-  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
-  username: text("username").notNull().unique(),
-  password: text("password").notNull(),
+// Chat message schema
+export const chatMessageSchema = z.object({
+  id: z.string(),
+  role: z.enum(["user", "assistant"]),
+  content: z.string(),
+  timestamp: z.number(),
 });
 
-export const insertUserSchema = createInsertSchema(users).pick({
-  username: true,
-  password: true,
+export type ChatMessage = z.infer<typeof chatMessageSchema>;
+
+// Request/Response schemas for API
+export const sendMessageSchema = z.object({
+  message: z.string().min(1, "Message cannot be empty"),
+  conversationHistory: z.array(chatMessageSchema).optional(),
 });
 
-export type InsertUser = z.infer<typeof insertUserSchema>;
-export type User = typeof users.$inferSelect;
+export type SendMessageRequest = z.infer<typeof sendMessageSchema>;
