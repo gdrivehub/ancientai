@@ -49,8 +49,8 @@ Always maintain historical accuracy while making the past come alive through you
       res.setHeader("Cache-Control", "no-cache");
       res.setHeader("Connection", "keep-alive");
 
-      // Build messages array for API
-      const messages: Array<{ role: string; content: string }> = [
+      // Build messages array for API - using any to accommodate Cerebras SDK types
+      const messages: any[] = [
         {
           role: "system",
           content: SYSTEM_PROMPT,
@@ -82,8 +82,8 @@ Always maintain historical accuracy while making the past come alive through you
       });
 
       // Stream the response
-      for await (const chunk of stream) {
-        const content = chunk.choices[0]?.delta?.content || "";
+      for await (const chunk of stream as any) {
+        const content = chunk.choices?.[0]?.delta?.content || "";
         if (content) {
           res.write(content);
         }
